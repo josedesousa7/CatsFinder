@@ -13,6 +13,7 @@ class BreedsListViewModel: ObservableObject {
         case loaded(result: [BreedDetail])
         case loading(result: [BreedDetail])
         case loadingMore(result: [BreedDetail])
+        case searchResult(result: [BreedDetail])
         case partiallyFailed(result: [BreedDetail])
         case empty
         case failed
@@ -34,6 +35,9 @@ class BreedsListViewModel: ObservableObject {
     }
 
     @Published var state: State = .loading(result: BreedDetail.mock)
+    private var availableBreeds: [BreedDetail] = []
+    @Published private var searchResults: [BreedDetail] = []
+
     private let repository: BreedsRepositoryProtocol
     private var page: Int = 0
 
@@ -51,6 +55,7 @@ class BreedsListViewModel: ObservableObject {
         do {
             let result = try await repository.fetchBreedList()
             state = .loaded(result: result)
+            self.availableBreeds = result
             page = 0
         } catch {
             state = .failed
@@ -65,12 +70,24 @@ class BreedsListViewModel: ObservableObject {
                do {
                    page += 1
                    let newBreeds = try await repository.fetchMoreBreeds(page: page)
+                   self.availableBreeds = result + newBreeds
                    state = .loaded(result: result + newBreeds)
                } catch {
                    // loading more failed, keep the list with the current results
                    state = .partiallyFailed(result: result)
                }
            }
+    }
+
+    func filterResultsFor(_ keyword: String) {
+        if keyword.isEmpty {
+            state = .loaded(result: availableBreeds)
+            return
+        }
+        searchResults = availableBreeds
+        let searchResult = searchResults.filter{ $0.name.contains(keyword) }
+        state = .searchResult(result: searchResult)
+
     }
 }
 

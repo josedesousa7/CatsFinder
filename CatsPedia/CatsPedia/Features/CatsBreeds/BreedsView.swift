@@ -27,7 +27,7 @@ struct BreedsView: View {
                         await viewModel.load()
                     }
 
-            case .loaded(let result), .loadingMore(result: let result):
+            case .loaded(let result), .loadingMore(result: let result), .searchResult(let result):
                 showCatList(result)
             case .empty:
                 Text("Empty")
@@ -40,6 +40,9 @@ struct BreedsView: View {
             case .partiallyFailed(let result):
                 showCatList(result)
             }
+        }
+        .onChange(of: text) {
+            viewModel.filterResultsFor(text)
         }
         .searchable(text: $text)
     }
