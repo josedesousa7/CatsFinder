@@ -10,7 +10,8 @@ import Combine
 
 protocol HttpProtocol {
     func fetch<T: Codable>(_ request: URLRequest) async throws -> T
-    func post<S: Codable>(_ request: URLRequest) async throws -> S
+    func post<T: Codable>(_ request: URLRequest) async throws -> T
+    func delete<T: Codable>(_ request: URLRequest) async throws -> T
 }
 
 struct RequestManager: HttpProtocol {
@@ -29,7 +30,7 @@ struct RequestManager: HttpProtocol {
             return result
         }
 
-    func post<S: Codable>(_ request: URLRequest) async throws -> S {
+    func post<T: Codable>(_ request: URLRequest) async throws -> T {
         guard request.httpMethod == "POST" else {
             throw URLError(.badURL)
         }
@@ -40,7 +41,22 @@ struct RequestManager: HttpProtocol {
             throw URLError(.badServerResponse)
         }
 
-        let result = try JSONDecoder().decode(S.self, from: data)
+        let result = try JSONDecoder().decode(T.self, from: data)
+        return result
+    }
+
+    func delete<T>(_ request: URLRequest) async throws -> T where T : Decodable, T : Encodable {
+        guard request.httpMethod == "DELETE" else {
+            throw URLError(.badURL)
+        }
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+
+        let result = try JSONDecoder().decode(T.self, from: data)
         return result
     }
 }

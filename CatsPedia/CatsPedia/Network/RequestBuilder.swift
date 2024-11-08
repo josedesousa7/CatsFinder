@@ -46,6 +46,13 @@ struct RequestBuilder {
         return url
     }
 
+    private func buildDeleteFavoriteUrl(id: Int) throws -> URL {
+        var baseUrlComponents = baseUrlComponentes
+        baseUrlComponents.path = "/v1/favourites/\(id)"
+        guard let url = baseUrlComponents.url else { throw URLError(.badURL)}
+        return url
+    }
+
 
     private func fetchApiKey() throws -> String? {
         if let path = Bundle.main.path(forResource: "AppSecrets", ofType: "plist") {
@@ -70,12 +77,20 @@ struct RequestBuilder {
         return urlRequest
     }
 
-    func buildCreateavoritesUrlRequest(id: String) throws -> URLRequest {
+    func buildCreateFavoritesUrlRequest(id: String) throws -> URLRequest {
         var urlRequest = try URLRequest(url: buildCreateFavoriteUrl(id: id))
         let json: [String: Any] = ["image_id": id]
         let jsonData = try JSONSerialization.data(withJSONObject: json)
         urlRequest.httpBody = jsonData
         urlRequest.httpMethod = "POST"
+        urlRequest.setValue(try fetchApiKey(), forHTTPHeaderField: "x-api-key")
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        return urlRequest
+    }
+
+    func buildDeleteFavoritesUrlRequest(id: Int) throws -> URLRequest {
+        var urlRequest = try URLRequest(url: buildDeleteFavoriteUrl(id: id))
+        urlRequest.httpMethod = "DELETE"
         urlRequest.setValue(try fetchApiKey(), forHTTPHeaderField: "x-api-key")
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         return urlRequest

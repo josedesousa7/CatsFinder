@@ -82,19 +82,39 @@ class BreedsListViewModel: ObservableObject {
     func favoriteOrUnfavorite(breed: BreedDetail) async {
         guard case .loaded(let result) = state,
         let index = result.firstIndex(of: breed) else { return }
-        do {
-            let success = try await repository.createFavorite(for: breed)
-            if success {
-                var updatedResult = result
-                var isFavorite = breed.isFavorite
-                isFavorite.toggle()
-                updatedResult[index].update(with: isFavorite)
-                state = .loaded(result: updatedResult)
+        if breed.isFavorite == false {
+            do {
+                let response = try await repository.createFavorite(for: breed)
+                guard let favoriteId = response.id else { return }
+                if response.message == "SUCCESS" {
+                    var updatedResult = result
+                    var isFavorite = breed.isFavorite
+                    isFavorite.toggle()
+                    updatedResult[index].update(with: isFavorite, id: favoriteId)
+                    state = .loaded(result: updatedResult)
+                }
+            }
+            catch {
+                // loading more failed, keep the list with the current results
+                state = .partiallyFailed(result: result)
             }
         }
-        catch {
-            // loading more failed, keep the list with the current results
-            state = .partiallyFailed(result: result)
+
+        else {
+            do {
+                let response = try await repository.removeFavorite(for: breed)
+                if response {
+                    var updatedResult = result
+                    var isFavorite = breed.isFavorite
+                    isFavorite.toggle()
+                    updatedResult[index].update(with: isFavorite, id: nil)
+                    state = .loaded(result: updatedResult)
+                }
+            }
+            catch {
+                // loading more failed, keep the list with the current results
+                state = .partiallyFailed(result: result)
+            }
         }
     }
 

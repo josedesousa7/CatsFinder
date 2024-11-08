@@ -11,7 +11,7 @@ protocol BreedsRepositoryProtocol {
     func fetchBreedList() async throws -> [BreedDetail]
     func fetchMoreBreeds(page: Int) async throws -> [BreedDetail]
     func fecthFavorites() async throws -> [FavoriteBreed]
-    func createFavorite(for breed: BreedDetail) async throws -> Bool
+    func createFavorite(for breed: BreedDetail) async throws -> FavoriteCreationResponse
     func removeFavorite(for breed: BreedDetail) async throws -> Bool
 }
 
@@ -39,20 +39,22 @@ struct BreedsRepository: BreedsRepositoryProtocol {
         return favorites
     }
 
-    func createFavorite(for breed: BreedDetail) async throws -> Bool {
+    func createFavorite(for breed: BreedDetail) async throws -> FavoriteCreationResponse {
         let response: FavoriteCreationResponse = try await apiClient.createFavorite(id: breed.id)
-        return response.message == "SUCCESS"
+        return response
     }
 
     func removeFavorite(for breed: BreedDetail) async throws -> Bool {
-        true
+        guard let id = breed.favoriteId else { return false }
+        let response: FavoriteCreationResponse = try await apiClient.removeFavorite(id: id)
+        return response.message == "SUCCESS"
     }
 }
 
 #if targetEnvironment(simulator)
 struct BreedsRepositoryMock: BreedsRepositoryProtocol {
-    func createFavorite(for breed: BreedDetail) async throws -> Bool {
-        true
+    func createFavorite(for breed: BreedDetail) async throws -> FavoriteCreationResponse {
+        return FavoriteCreationResponse(message: "", id: 3)
     }
     
     func removeFavorite(for breed: BreedDetail) async throws -> Bool {

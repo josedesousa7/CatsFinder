@@ -10,12 +10,14 @@ func mapToBreedDetail(result: [Breed], favorites: [FavoriteBreed]) throws -> [Br
     return result.compactMap { breed -> BreedDetail? in
         guard let name = breed.name, let id = breed.id else { return nil }
         let favoritesId = favorites.map { $0.imageId }
+        let favoriteIdIndex = favoritesId.firstIndex(where: { id == $0 })
         let isFavorite = favoritesId.contains { $0 == id }
         return BreedDetail(
             id: id,
             name: name,
             imageUrl: breed.image?.url.flatMap(URL.init),
-            isFavorite: isFavorite
+            isFavorite: isFavorite,
+            favoriteId: favorites[safe: favoriteIdIndex]?.id
         )
     }
 }

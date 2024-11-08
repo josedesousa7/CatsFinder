@@ -13,7 +13,7 @@ protocol CatPediaRequestsProtocol {
     func fetchMoreBreeds<T: Codable>(page: Int) async throws -> T
     func fetchFavorites<T: Codable>() async throws -> T
     func createFavorite<T: Codable>(id: String) async throws -> T
-    func removeFavorite(id: String) async throws -> Bool
+    func removeFavorite<T: Codable>(id: Int) async throws -> T
 }
 
 struct CatPediaApiClient: CatPediaRequestsProtocol {
@@ -47,12 +47,15 @@ struct CatPediaApiClient: CatPediaRequestsProtocol {
 
     func createFavorite<T: Codable>(id: String) async throws -> T {
         do {
-            return try await requestManager.post(requestBuilder.buildCreateavoritesUrlRequest(id: id))
+            return try await requestManager.post(requestBuilder.buildCreateFavoritesUrlRequest(id: id))
         }
     }
 
-    func removeFavorite(id: String) async throws -> Bool {
-        false
+    func removeFavorite<T: Codable>(id: Int) async throws -> T {
+        do {
+            return try await requestManager.delete(requestBuilder.buildDeleteFavoritesUrlRequest(id: id))
+        }
     }
 
 }
+
