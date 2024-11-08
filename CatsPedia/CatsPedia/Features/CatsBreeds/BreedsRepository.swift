@@ -11,10 +11,12 @@ protocol BreedsRepositoryProtocol {
     func fetchBreedList() async throws -> [BreedDetail]
     func fetchMoreBreeds(page: Int) async throws -> [BreedDetail]
     func fecthFavorites() async throws -> [FavoriteBreed]
+    func createFavorite(for breed: BreedDetail) async throws -> Bool
+    func removeFavorite(for breed: BreedDetail) async throws -> Bool
 }
 
 struct BreedsRepository: BreedsRepositoryProtocol {
-    
+
     private let apiClient: CatPediaRequestsProtocol
 
     init(apiClient: CatPediaRequestsProtocol = CatPediaApiClient()) {
@@ -36,10 +38,27 @@ struct BreedsRepository: BreedsRepositoryProtocol {
         let favorites: [FavoriteBreed] = try await apiClient.fetchFavorites()
         return favorites
     }
+
+    func createFavorite(for breed: BreedDetail) async throws -> Bool {
+        let response: FavoriteCreationResponse = try await apiClient.createFavorite(id: breed.id)
+        return response.message == "SUCCESS"
+    }
+
+    func removeFavorite(for breed: BreedDetail) async throws -> Bool {
+        true
+    }
 }
 
 #if targetEnvironment(simulator)
 struct BreedsRepositoryMock: BreedsRepositoryProtocol {
+    func createFavorite(for breed: BreedDetail) async throws -> Bool {
+        true
+    }
+    
+    func removeFavorite(for breed: BreedDetail) async throws -> Bool {
+        false
+    }
+    
 
     func fetchMoreBreeds(page: Int) async throws -> [BreedDetail] {
         return BreedDetail.mock

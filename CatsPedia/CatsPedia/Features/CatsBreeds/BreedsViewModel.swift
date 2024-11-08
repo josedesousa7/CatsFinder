@@ -63,7 +63,7 @@ class BreedsListViewModel: ObservableObject {
     }
 
     func loadMore(after breed: BreedDetail) async {
-        guard case .loaded(let result) = state, state.hasLoaded else {return }
+        guard case .loaded(let result) = state, state.hasLoaded else { return }
         let thresholdIndex = result.index(result.endIndex, offsetBy: -1)
         if result.firstIndex(where: { $0.id == breed.id }) == thresholdIndex {
             state = .loadingMore(result: result)
@@ -77,6 +77,25 @@ class BreedsListViewModel: ObservableObject {
                    state = .partiallyFailed(result: result)
                }
            }
+    }
+
+    func favoriteOrUnfavorite(breed: BreedDetail) async {
+        guard case .loaded(let result) = state,
+        let index = result.firstIndex(of: breed) else { return }
+        do {
+            let success = try await repository.createFavorite(for: breed)
+            if success {
+                var updatedResult = result
+                var isFavorite = breed.isFavorite
+                isFavorite.toggle()
+                updatedResult[index].update(with: isFavorite)
+                state = .loaded(result: updatedResult)
+            }
+        }
+        catch {
+            // loading more failed, keep the list with the current results
+            state = .partiallyFailed(result: result)
+        }
     }
 
     func filterResultsFor(_ keyword: String) {

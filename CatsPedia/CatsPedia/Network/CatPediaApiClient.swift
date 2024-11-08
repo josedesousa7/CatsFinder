@@ -12,6 +12,8 @@ protocol CatPediaRequestsProtocol {
     func fetchBreeds<T: Codable>() async throws -> T
     func fetchMoreBreeds<T: Codable>(page: Int) async throws -> T
     func fetchFavorites<T: Codable>() async throws -> T
+    func createFavorite<T: Codable>(id: String) async throws -> T
+    func removeFavorite(id: String) async throws -> Bool
 }
 
 struct CatPediaApiClient: CatPediaRequestsProtocol {
@@ -37,9 +39,20 @@ struct CatPediaApiClient: CatPediaRequestsProtocol {
         }
     }
 
-    func fetchFavorites<T>() async throws -> T where T : Decodable, T : Encodable {
+    func fetchFavorites<T: Codable>() async throws -> T {
         do {
             return try await requestManager.fetch(requestBuilder.buildFavoritesUrlRequest())
         }
     }
+
+    func createFavorite<T: Codable>(id: String) async throws -> T {
+        do {
+            return try await requestManager.post(requestBuilder.buildCreateavoritesUrlRequest(id: id))
+        }
+    }
+
+    func removeFavorite(id: String) async throws -> Bool {
+        false
+    }
+
 }

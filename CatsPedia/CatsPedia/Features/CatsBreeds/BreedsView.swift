@@ -98,7 +98,11 @@ struct BreedsView: View {
         ZStack (alignment: .topTrailing) {
             SwiftUI.Image(systemName: breed.isFavorite ? "star.fill" : "star")
                 .zIndex(1)
-                .onTapGesture { print("favorite tapped") }
+                .onTapGesture {
+                    Task {
+                        await viewModel.favoriteOrUnfavorite(breed: breed)
+                    }
+                }
             AsyncImage(url: breed.imageUrl) { phase in
                 switch phase {
                 case .success(let image):

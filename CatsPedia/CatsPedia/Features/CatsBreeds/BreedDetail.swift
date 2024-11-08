@@ -13,7 +13,7 @@ struct BreedDetail: Identifiable, Hashable {
     let imageUrl: URL?
     var isFavorite: Bool
 
-    mutating func update(with breed: BreedDetail) {
-        isFavorite = breed.isFavorite
+    mutating func update(with interaction: Bool) {
+        isFavorite = interaction
     }
 }

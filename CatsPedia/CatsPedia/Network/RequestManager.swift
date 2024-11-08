@@ -10,7 +10,7 @@ import Combine
 
 protocol HttpProtocol {
     func fetch<T: Codable>(_ request: URLRequest) async throws -> T
-    func post<T: Codable, S: Codable>(_ request: URLRequest, body: T) async throws -> S
+    func post<S: Codable>(_ request: URLRequest) async throws -> S
 }
 
 struct RequestManager: HttpProtocol {
@@ -29,12 +29,10 @@ struct RequestManager: HttpProtocol {
             return result
         }
 
-    func post<T: Codable, S: Codable>(_ request: URLRequest, body: T) async throws -> S {
+    func post<S: Codable>(_ request: URLRequest) async throws -> S {
         guard request.httpMethod == "POST" else {
             throw URLError(.badURL)
         }
-        var request = request
-        request.httpBody = try JSONEncoder().encode(body)
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
