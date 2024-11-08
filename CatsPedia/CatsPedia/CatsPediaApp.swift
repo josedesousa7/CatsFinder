@@ -25,7 +25,7 @@ struct CatsPediaApp: App {
     
     var body: some Scene {
         WindowGroup {
-            BreedsView()
+            BreedsView(viewModel: BreedsListViewModel(repository: .init()))
         }
         .modelContainer(sharedModelContainer)
     }

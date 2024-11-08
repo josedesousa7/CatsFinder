@@ -24,7 +24,7 @@ struct RequestBuilder {
         var baseUrlComponents = baseUrlComponentes
         baseUrlComponents.path = "/v1/breeds"
         baseUrlComponents.queryItems = [
-            URLQueryItem(name: "limit", value: "15"),
+            URLQueryItem(name: "limit", value: "25"),
         ]
 
         guard let url = baseUrlComponents.url else { throw URLError(.badURL)}

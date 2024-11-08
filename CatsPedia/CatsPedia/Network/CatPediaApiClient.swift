@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 protocol CatPediaRequestsProtocol {
-    func fetchCatsList<T: Codable>() async throws -> T
+    func fetchBreeds<T: Codable>() async throws -> T
 }
 
 struct CatPediaApiClient: CatPediaRequestsProtocol {
@@ -23,7 +23,7 @@ struct CatPediaApiClient: CatPediaRequestsProtocol {
 
     }
 
-    func fetchCatsList<T: Codable>() async throws -> T {
+    func fetchBreeds<T: Codable>() async throws -> T {
         do {
             return try await requestManager.fetch(requestBuilder.buildGetUrlRequest())
         }
