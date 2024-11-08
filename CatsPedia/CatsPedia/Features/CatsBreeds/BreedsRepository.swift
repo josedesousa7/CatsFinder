@@ -10,6 +10,7 @@ import Foundation
 protocol BreedsRepositoryProtocol {
     func fetchBreedList() async throws -> [BreedDetail]
     func fetchMoreBreeds(page: Int) async throws -> [BreedDetail]
+    func fecthFavorites() async throws -> [FavoriteBreed]
 }
 
 struct BreedsRepository: BreedsRepositoryProtocol {
@@ -22,12 +23,18 @@ struct BreedsRepository: BreedsRepositoryProtocol {
 
     func fetchBreedList() async throws -> [BreedDetail] {
         let breedList: [Breed] = try await apiClient.fetchBreeds()
-        return try mapToBreedDetail(result: breedList)
+        let favorites = try await fecthFavorites()
+        return try mapToBreedDetail(result: breedList, favorites: favorites)
     }
 
     func fetchMoreBreeds(page: Int) async throws -> [BreedDetail] {
         let breedList: [Breed] = try await apiClient.fetchMoreBreeds(page: page)
-        return try mapToBreedDetail(result: breedList)
+        return try mapToBreedDetail(result: breedList, favorites: [])
+    }
+
+    func fecthFavorites() async throws -> [FavoriteBreed] {
+        let favorites: [FavoriteBreed] = try await apiClient.fetchFavorites()
+        return favorites
     }
 }
 
@@ -40,6 +47,10 @@ struct BreedsRepositoryMock: BreedsRepositoryProtocol {
     
     func fetchBreedList() async throws -> [BreedDetail] {
         return BreedDetail.mock
+    }
+
+    func fecthFavorites() async throws -> [FavoriteBreed] {
+        return []
     }
 }
 #endif

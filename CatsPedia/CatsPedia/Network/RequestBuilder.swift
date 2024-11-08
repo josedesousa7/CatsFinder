@@ -32,6 +32,14 @@ struct RequestBuilder {
         return url
     }
 
+    private func buildFavoritesUrl() throws -> URL {
+        var baseUrlComponents = baseUrlComponentes
+        baseUrlComponents.path = "/v1/favourites"
+
+        guard let url = baseUrlComponents.url else { throw URLError(.badURL)}
+        return url
+    }
+
     private func fetchApiKey() throws -> String? {
         if let path = Bundle.main.path(forResource: "AppSecrets", ofType: "plist") {
             if let plistDict = NSDictionary(contentsOfFile: path) as? [String: Any] {
@@ -39,6 +47,13 @@ struct RequestBuilder {
             }
         }
         throw NetworkError.noApiKeyAvailable
+    }
+
+    func buildFavoritesUrlRequest() throws -> URLRequest {
+        var urlRequest = try URLRequest(url: buildFavoritesUrl())
+        urlRequest.setValue(try fetchApiKey(), forHTTPHeaderField: "x-api-key")
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        return urlRequest
     }
 
     func buildGetUrlRequest(page: Int = 0) throws -> URLRequest {

@@ -78,7 +78,7 @@ struct BreedsView: View {
 
     private func catView( _ breed: BreedDetail) -> some View {
         VStack(spacing: 12) {
-            catPicture(url: breed.imageUrl)
+            catPicture(for: breed)
             Text(breed.name)
                 .font(.caption)
                 .foregroundStyle(.primary)
@@ -94,25 +94,30 @@ struct BreedsView: View {
         }
     }
 
-    @ViewBuilder private func catPicture(url: URL?) -> some View {
-        AsyncImage(url: url) { phase in
-            switch phase {
-            case .success(let image):
-                formatImage(image)
-            case .failure:
-                //async image sometimes fails. Calling a second time seems to be working 🤷🏼‍♂️
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        formatImage(image)
-                    case .failure:
-                        SwiftUI.Image(systemName: "exclamationmark.triangle")
-                    default:
-                        placeHolder
+    @ViewBuilder private func catPicture(for breed: BreedDetail) -> some View {
+        ZStack (alignment: .topTrailing) {
+            SwiftUI.Image(systemName: breed.isFavorite ? "star.fill" : "star")
+                .zIndex(1)
+                .onTapGesture { print("favorite tapped") }
+            AsyncImage(url: breed.imageUrl) { phase in
+                switch phase {
+                case .success(let image):
+                    formatImage(image)
+                case .failure:
+                    //async image sometimes fails. Calling a second time seems to be working 🤷🏼‍♂️
+                    AsyncImage(url: breed.imageUrl) { phase in
+                        switch phase {
+                        case .success(let image):
+                            formatImage(image)
+                        case .failure:
+                            SwiftUI.Image(systemName: "exclamationmark.triangle")
+                        default:
+                            placeHolder
+                        }
                     }
+                default:
+                    placeHolder
                 }
-            default:
-                placeHolder
             }
         }
     }

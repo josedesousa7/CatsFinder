@@ -11,6 +11,7 @@ import Combine
 protocol CatPediaRequestsProtocol {
     func fetchBreeds<T: Codable>() async throws -> T
     func fetchMoreBreeds<T: Codable>(page: Int) async throws -> T
+    func fetchFavorites<T: Codable>() async throws -> T
 }
 
 struct CatPediaApiClient: CatPediaRequestsProtocol {
@@ -33,6 +34,12 @@ struct CatPediaApiClient: CatPediaRequestsProtocol {
     func fetchMoreBreeds<T: Codable>(page: Int) async throws -> T {
         do {
             return try await requestManager.fetch(requestBuilder.buildGetUrlRequest(page: page))
+        }
+    }
+
+    func fetchFavorites<T>() async throws -> T where T : Decodable, T : Encodable {
+        do {
+            return try await requestManager.fetch(requestBuilder.buildFavoritesUrlRequest())
         }
     }
 }
