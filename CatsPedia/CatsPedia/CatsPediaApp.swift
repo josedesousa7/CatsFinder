@@ -22,10 +22,14 @@ struct CatsPediaApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            BreedsView(
+                viewModel: BreedsListViewModel(
+                    repository: BreedsRepository()
+                )
+            )
         }
         .modelContainer(sharedModelContainer)
     }

@@ -1,0 +1,158 @@
+//
+//  BreedsView.swift
+//  CatsPedia
+//
+//  Created by José Marques on 08/11/2024.
+//
+
+import SwiftUI
+
+struct BreedsView: View {
+    var gridItems: [GridItem] = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+
+    @ObservedObject private(set) var viewModel: BreedsListViewModel
+    @State var text: String = ""
+
+    var body: some View {
+        NavigationStack {
+            switch viewModel.state {
+            case .loading(let result):
+                showCatList(result)
+                    .redacted(reason: .placeholder)
+                    .task {
+                        await viewModel.load()
+                    }
+
+            case .loaded(let result), .loadingMore(result: let result), .searchResult(let result):
+                showCatList(result)
+            case .empty:
+                Text("Empty")
+            case .failed:
+                ErrorView {
+                    Task {
+                        await viewModel.load()
+                    }
+                }
+            case .partiallyFailed(let result):
+                showCatList(result)
+            }
+        }
+        .onChange(of: text) {
+            viewModel.filterResultsFor(text)
+        }
+        .searchable(text: $text)
+    }
+
+    private func destinationView(_ breed: BreedDetail) -> some View {
+        Text(breed.name)
+    }
+
+    private func showCatList(_ breed: [BreedDetail]) -> some View {
+        return ScrollView {
+            VStack {
+                LazyVGrid(columns: gridItems, spacing: 10) {
+                    ForEach(breed, id: \.id) { catBreed in
+                        NavigationLink(destination: destinationView(catBreed)) {
+                            catView(catBreed)
+                                .padding(.vertical)
+                                .onAppear {
+                                    Task {
+                                        await viewModel.loadMore(after: catBreed)
+                                    }
+                                }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+        .refreshable {
+            await viewModel.load()
+        }
+        .navigationTitle("Cats 😺")
+    }
+
+    private func catView( _ breed: BreedDetail) -> some View {
+        VStack(spacing: 12) {
+            catPicture(for: breed)
+            Text(breed.name)
+                .font(.caption)
+                .foregroundStyle(.primary)
+        }
+    }
+
+    private var placeHolder: some View {
+        ZStack {
+            Rectangle()
+                .frame(width: 100, height: 100)
+                .foregroundColor(.gray.opacity(0.2))
+            SwiftUI.Image(systemName: "photo.artframe")
+        }
+    }
+
+    @ViewBuilder private func catPicture(for breed: BreedDetail) -> some View {
+        ZStack (alignment: .topTrailing) {
+            SwiftUI.Image(systemName: breed.isFavorite ? "star.fill" : "star")
+                .foregroundColor(.yellow)
+                .zIndex(1)
+                .onTapGesture {
+                    Task {
+                        await viewModel.favoriteOrUnfavorite(breed: breed)
+                    }
+                }
+            AsyncImage(url: breed.imageUrl) { phase in
+                switch phase {
+                case .success(let image):
+                    formatImage(image)
+                case .failure:
+                    //async image sometimes fails. Calling a second time seems to be working 🤷🏼‍♂️
+                    AsyncImage(url: breed.imageUrl) { phase in
+                        switch phase {
+                        case .success(let image):
+                            formatImage(image)
+                        case .failure:
+                            SwiftUI.Image(systemName: "exclamationmark.triangle")
+                        default:
+                            placeHolder
+                        }
+                    }
+                default:
+                    placeHolder
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func formatImage(_ image:  SwiftUI.Image) -> some View {
+        image
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: 100, height: 100)
+            .clipShape(Rectangle())
+            .overlay(Rectangle()
+                .stroke(.gray, lineWidth: 1)
+            )
+            .clipped()
+    }
+}
+
+#Preview("Loaded") {
+    BreedsView(
+        viewModel: BreedsListViewModelMock(
+            state: .loaded(result: BreedDetail.mock)
+        )
+    )
+}
+
+#Preview("Error") {
+    BreedsView(
+        viewModel: BreedsListViewModelMock(
+            state: .failed
+        )
+    )
+}

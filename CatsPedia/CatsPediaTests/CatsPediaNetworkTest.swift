@@ -22,7 +22,7 @@ final class CatsPediaTests: XCTestCase {
         // given
 
         // when
-        let cats: [Breed] = try await CatPediaApiClient().fetchCatsList()
+        let cats: [Breed] = try await CatPediaApiClient().fetchBreeds()
 
         // then
         XCTAssertTrue(cats.count > 0)

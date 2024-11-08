@@ -20,16 +20,39 @@ struct RequestBuilder {
         return components
     }
 
-    private func buildURL() throws -> URL {
+    private func buildURL(page: Int = 0) throws -> URL {
         var baseUrlComponents = baseUrlComponentes
         baseUrlComponents.path = "/v1/breeds"
         baseUrlComponents.queryItems = [
-            URLQueryItem(name: "limit", value: "15"),
+            URLQueryItem(name: "limit", value: "25"),
+            URLQueryItem(name: "page", value: String(page))
         ]
 
         guard let url = baseUrlComponents.url else { throw URLError(.badURL)}
         return url
     }
+
+    private func buildFavoritesUrl() throws -> URL {
+        var baseUrlComponents = baseUrlComponentes
+        baseUrlComponents.path = "/v1/favourites"
+        guard let url = baseUrlComponents.url else { throw URLError(.badURL)}
+        return url
+    }
+
+    private func buildCreateFavoriteUrl(id: String) throws -> URL {
+        var baseUrlComponents = baseUrlComponentes
+        baseUrlComponents.path = "/v1/favourites"
+        guard let url = baseUrlComponents.url else { throw URLError(.badURL)}
+        return url
+    }
+
+    private func buildDeleteFavoriteUrl(id: Int) throws -> URL {
+        var baseUrlComponents = baseUrlComponentes
+        baseUrlComponents.path = "/v1/favourites/\(id)"
+        guard let url = baseUrlComponents.url else { throw URLError(.badURL)}
+        return url
+    }
+
 
     private func fetchApiKey() throws -> String? {
         if let path = Bundle.main.path(forResource: "AppSecrets", ofType: "plist") {
@@ -40,8 +63,34 @@ struct RequestBuilder {
         throw NetworkError.noApiKeyAvailable
     }
 
-    func buildGetUrlRequest() throws -> URLRequest {
-        var urlRequest = try URLRequest(url: buildURL())
+    func buildFavoritesUrlRequest() throws -> URLRequest {
+        var urlRequest = try URLRequest(url: buildFavoritesUrl())
+        urlRequest.setValue(try fetchApiKey(), forHTTPHeaderField: "x-api-key")
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        return urlRequest
+    }
+
+    func buildGetUrlRequest(page: Int = 0) throws -> URLRequest {
+        var urlRequest = try URLRequest(url: buildURL(page: page))
+        urlRequest.setValue(try fetchApiKey(), forHTTPHeaderField: "x-api-key")
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        return urlRequest
+    }
+
+    func buildCreateFavoritesUrlRequest(id: String) throws -> URLRequest {
+        var urlRequest = try URLRequest(url: buildCreateFavoriteUrl(id: id))
+        let json: [String: Any] = ["image_id": id]
+        let jsonData = try JSONSerialization.data(withJSONObject: json)
+        urlRequest.httpBody = jsonData
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue(try fetchApiKey(), forHTTPHeaderField: "x-api-key")
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        return urlRequest
+    }
+
+    func buildDeleteFavoritesUrlRequest(id: Int) throws -> URLRequest {
+        var urlRequest = try URLRequest(url: buildDeleteFavoriteUrl(id: id))
+        urlRequest.httpMethod = "DELETE"
         urlRequest.setValue(try fetchApiKey(), forHTTPHeaderField: "x-api-key")
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         return urlRequest
