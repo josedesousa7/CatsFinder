@@ -18,34 +18,30 @@ struct BreedsView: View {
     @State var text: String = ""
 
     var body: some View {
-        switch viewModel.state {
-        case .loading(let result):
-            NavigationStack {
+        NavigationStack {
+            switch viewModel.state {
+            case .loading(let result):
                 showCatList(result)
-                .redacted(reason: .placeholder)
-                .task {
-                    await viewModel.load()
-                }
-                .searchable(text: $text)
-                .navigationTitle("Cats 😺")
-            }
+                    .redacted(reason: .placeholder)
+                    .task {
+                        await viewModel.load()
+                    }
 
-        case .loaded(let result):
-            NavigationStack {
+            case .loaded(let result):
                 showCatList(result)
-                .refreshable {
-                    await viewModel.load()
+            case .loadingMore(result: let result):
+                Text("loading more")
+            case .empty:
+                Text("Empty")
+            case .failed:
+                ErrorView {
+                    Task {
+                        await viewModel.load()
+                    }
                 }
-                .searchable(text: $text)
-                .navigationTitle("Cats 😺")
             }
-        case .loadingMore(result: let result):
-            Text("loading more")
-        case .empty:
-            Text("Empty")
-        case .failed:
-            Text("Failed")
         }
+        .searchable(text: $text)
     }
 
     private func destinationView(_ breed: BreedDetail) -> some View {
@@ -65,8 +61,12 @@ struct BreedsView: View {
             }
             .padding(.vertical)
         }
-
+        .refreshable {
+            await viewModel.load()
+        }
+        .navigationTitle("Cats 😺")
     }
+
     private func catView( _ breed: BreedDetail) -> some View {
         VStack(spacing: 12) {
             catPicture(url: breed.imageUrl)
@@ -122,6 +122,18 @@ struct BreedsView: View {
     }
 }
 
-#Preview {
-    BreedsView(viewModel: BreedsListViewModelMock(state: .loaded(result: BreedDetail.mock)))
+#Preview("Loaded") {
+    BreedsView(
+        viewModel: BreedsListViewModelMock(
+            state: .loaded(result: BreedDetail.mock)
+        )
+    )
+}
+
+#Preview("Error") {
+    BreedsView(
+        viewModel: BreedsListViewModelMock(
+            state: .failed
+        )
+    )
 }

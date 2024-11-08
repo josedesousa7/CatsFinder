@@ -33,13 +33,11 @@ class BreedsListViewModel: ObservableObject {
     }
 
     @Published var state: State = .loading(result: BreedDetail.mock)
-    private let repository: BreedsRepository
+    private let repository: BreedsRepositoryProtocol
 
-
-    init(repository: BreedsRepository) {
+    init(repository: BreedsRepositoryProtocol) {
         self.repository = repository
     }
-
 
     //MARK: - Network
 
@@ -74,9 +72,8 @@ extension BreedDetail {
 #if targetEnvironment(simulator)
 final class BreedsListViewModelMock: BreedsListViewModel {
     init(state: State) {
-        super.init(repository: BreedsRepository())
+        super.init(repository: BreedsRepositoryMock())
         self.state = state
     }
 }
 #endif
-

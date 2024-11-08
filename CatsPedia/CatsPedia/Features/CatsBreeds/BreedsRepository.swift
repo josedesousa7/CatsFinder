@@ -7,7 +7,11 @@
 
 import Foundation
 
-struct BreedsRepository {
+protocol BreedsRepositoryProtocol {
+    func fetchBreedList() async throws -> [BreedDetail]
+}
+
+struct BreedsRepository: BreedsRepositoryProtocol {
     private let apiClient: CatPediaRequestsProtocol
 
     init(apiClient: CatPediaRequestsProtocol = CatPediaApiClient()) {
@@ -19,3 +23,11 @@ struct BreedsRepository {
         return try mapToBreedDetail(result: breedList)
     }
 }
+
+#if targetEnvironment(simulator)
+struct BreedsRepositoryMock: BreedsRepositoryProtocol {
+    func fetchBreedList() async throws -> [BreedDetail] {
+        return BreedDetail.mock
+    }
+}
+#endif
