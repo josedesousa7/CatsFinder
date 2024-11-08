@@ -20,11 +20,12 @@ struct RequestBuilder {
         return components
     }
 
-    private func buildURL() throws -> URL {
+    private func buildURL(page: Int = 0) throws -> URL {
         var baseUrlComponents = baseUrlComponentes
         baseUrlComponents.path = "/v1/breeds"
         baseUrlComponents.queryItems = [
             URLQueryItem(name: "limit", value: "25"),
+            URLQueryItem(name: "page", value: String(page))
         ]
 
         guard let url = baseUrlComponents.url else { throw URLError(.badURL)}
@@ -40,8 +41,8 @@ struct RequestBuilder {
         throw NetworkError.noApiKeyAvailable
     }
 
-    func buildGetUrlRequest() throws -> URLRequest {
-        var urlRequest = try URLRequest(url: buildURL())
+    func buildGetUrlRequest(page: Int = 0) throws -> URLRequest {
+        var urlRequest = try URLRequest(url: buildURL(page: page))
         urlRequest.setValue(try fetchApiKey(), forHTTPHeaderField: "x-api-key")
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         return urlRequest

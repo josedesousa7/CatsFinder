@@ -27,10 +27,8 @@ struct BreedsView: View {
                         await viewModel.load()
                     }
 
-            case .loaded(let result):
+            case .loaded(let result), .loadingMore(result: let result):
                 showCatList(result)
-            case .loadingMore(result: let result):
-                Text("loading more")
             case .empty:
                 Text("Empty")
             case .failed:
@@ -39,6 +37,8 @@ struct BreedsView: View {
                         await viewModel.load()
                     }
                 }
+            case .partiallyFailed(let result):
+                showCatList(result)
             }
         }
         .searchable(text: $text)
@@ -50,16 +50,22 @@ struct BreedsView: View {
 
     private func showCatList(_ breed: [BreedDetail]) -> some View {
         return ScrollView {
-            LazyVGrid(columns: gridItems, spacing: 10) {
-                ForEach(breed, id: \.id) { catBreed in
-                    NavigationLink(destination: destinationView(catBreed)) {
-                        catView(catBreed)
-                            .padding(.vertical)
+            VStack {
+                LazyVGrid(columns: gridItems, spacing: 10) {
+                    ForEach(breed, id: \.id) { catBreed in
+                        NavigationLink(destination: destinationView(catBreed)) {
+                            catView(catBreed)
+                                .padding(.vertical)
+                                .onAppear {
+                                    Task {
+                                        await viewModel.loadMore(after: catBreed)
+                                    }
+                                }
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
-            .padding(.vertical)
         }
         .refreshable {
             await viewModel.load()

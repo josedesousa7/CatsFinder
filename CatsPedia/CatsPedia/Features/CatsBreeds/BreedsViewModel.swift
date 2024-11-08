@@ -13,6 +13,7 @@ class BreedsListViewModel: ObservableObject {
         case loaded(result: [BreedDetail])
         case loading(result: [BreedDetail])
         case loadingMore(result: [BreedDetail])
+        case partiallyFailed(result: [BreedDetail])
         case empty
         case failed
 
@@ -34,6 +35,7 @@ class BreedsListViewModel: ObservableObject {
 
     @Published var state: State = .loading(result: BreedDetail.mock)
     private let repository: BreedsRepositoryProtocol
+    private var page: Int = 0
 
     init(repository: BreedsRepositoryProtocol) {
         self.repository = repository
@@ -49,12 +51,26 @@ class BreedsListViewModel: ObservableObject {
         do {
             let result = try await repository.fetchBreedList()
             state = .loaded(result: result)
+            page = 0
         } catch {
             state = .failed
         }
     }
 
-    func loadMore() async {
+    func loadMore(after breed: BreedDetail) async {
+        guard case .loaded(let result) = state, state.hasLoaded else {return }
+        let thresholdIndex = result.index(result.endIndex, offsetBy: -1)
+        if result.firstIndex(where: { $0.id == breed.id }) == thresholdIndex {
+            state = .loadingMore(result: result)
+               do {
+                   page += 1
+                   let newBreeds = try await repository.fetchMoreBreeds(page: page)
+                   state = .loaded(result: result + newBreeds)
+               } catch {
+                   // loading more failed, keep the list with the current results
+                   state = .partiallyFailed(result: result)
+               }
+           }
     }
 }
 
