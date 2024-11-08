@@ -30,8 +30,9 @@ struct BreedsRepository: BreedsRepositoryProtocol {
     }
 
     func fetchMoreBreeds(page: Int) async throws -> [BreedDetail] {
+        let favorites = try await fecthFavorites()
         let breedList: [Breed] = try await apiClient.fetchMoreBreeds(page: page)
-        return try mapToBreedDetail(result: breedList, favorites: [])
+        return try mapToBreedDetail(result: breedList, favorites: favorites)
     }
 
     func fecthFavorites() async throws -> [FavoriteBreed] {
