@@ -97,6 +97,7 @@ struct BreedsView: View {
     @ViewBuilder private func catPicture(for breed: BreedDetail) -> some View {
         ZStack (alignment: .topTrailing) {
             SwiftUI.Image(systemName: breed.isFavorite ? "star.fill" : "star")
+                .foregroundColor(.yellow)
                 .zIndex(1)
                 .onTapGesture {
                     Task {
