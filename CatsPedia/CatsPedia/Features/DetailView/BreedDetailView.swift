@@ -8,48 +8,52 @@
 import SwiftUI
 
 struct BreedDetailView: View {
-    let breed: BreedDetail
+    @ObservedObject private(set) var viewModel: BreedDetailViewModel
 
     var body: some View {
-        VStack(spacing: 40) {
-            HStack {
-                Text(breed.name)
-                    .font(.largeTitle.bold())
-                    .lineLimit(2)
-                    .padding(.trailing, 4)
-                Spacer()
-                SwiftUI.Image(systemName: breed.isFavourite ? "star.fill" : "star")
-                    .font(.largeTitle)
-                    .foregroundColor(.yellow)
-                    .zIndex(1)
-                    .padding(.trailing, 4)
-                    .padding(.top, 4)
-                    .onTapGesture {
-                        //action()
+        switch viewModel.state {
+        case .loaded(let breed), .partiallyFailed(let breed):
+            VStack(spacing: 40) {
+                HStack {
+                    Text(breed.name)
+                        .font(.largeTitle.bold())
+                        .lineLimit(2)
+                        .padding(.trailing, 4)
+                    Spacer()
+                    SwiftUI.Image(systemName: breed.isFavourite ? "star.fill" : "star")
+                        .font(.largeTitle)
+                        .foregroundColor(.yellow)
+                        .zIndex(1)
+                        .padding(.trailing, 4)
+                        .padding(.top, 4)
+                        .onTapGesture {
+                            Task {
+                               await viewModel.favoriteOrUnfavorite(breed: breed)
+                            }
+                        }
+                }
+                catPicture(for: breed.imageUrl)
+                VStack(alignment: .center, spacing: 15) {
+                    if let origin = breed.origin {
+                        Text(origin)
+                            .font(.subheadline)
+                            .lineLimit(2)
                     }
-            }
-            catPicture(for: breed.imageUrl)
-            VStack(alignment: .center, spacing: 15) {
-                if let origin = breed.origin {
-                    Text(origin)
-                        .font(.subheadline)
-                        .lineLimit(2)
-                }
-                if let temperament = breed.temperament {
-                    Text(temperament)
-                        .font(.subheadline)
-                        .lineLimit(2)
-                }
+                    if let temperament = breed.temperament {
+                        Text(temperament)
+                            .font(.subheadline)
+                            .lineLimit(2)
+                    }
 
-                if let description = breed.description {
-                    Text(description)
-                        .font(.subheadline)
-                        .lineLimit(2)
+                    if let description = breed.description {
+                        Text(description)
+                            .font(.subheadline)
+                            .lineLimit(2)
+                    }
                 }
             }
-
+            .padding(.horizontal, 16)
         }
-        .padding(.horizontal, 16)
     }
 
 
@@ -95,5 +99,5 @@ private extension CGFloat {
         imageUrl: nil,
         isFavourite: true
     )
-    BreedDetailView(breed: breed)
+    BreedDetailView(viewModel: BreedDetailViewModelMock(state: .loaded(result: breed)))
 }

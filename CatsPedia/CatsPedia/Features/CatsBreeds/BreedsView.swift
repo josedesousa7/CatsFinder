@@ -54,7 +54,7 @@ struct BreedsView: View {
             VStack {
                 LazyVGrid(columns: gridItems, spacing: 10) {
                     ForEach(breed, id: \.id) { catBreed in
-                        NavigationLink(destination: BreedDetailView(breed: catBreed)) {
+                        NavigationLink(destination: BreedDetailView(viewModel: BreedDetailViewModel(breed: catBreed))) {
                             BreedView(
                                 caption: catBreed.name,
                                 isFavourite: catBreed.isFavourite,

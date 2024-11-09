@@ -21,7 +21,7 @@ struct FavouritesBreedsView: View {
                 VStack {
                     LazyVGrid(columns: gridItems, spacing: 10) {
                         ForEach(viewModel.favouritesBreeds, id: \.id) { catBreed in
-                            NavigationLink(destination: BreedDetailView(breed: catBreed)) {
+                            NavigationLink(destination: BreedDetailView(viewModel: BreedDetailViewModel(breed: catBreed))) {
                                 BreedView(
                                     caption: catBreed.lifeSpan,
                                     isFavourite: catBreed.isFavourite,
@@ -34,6 +34,12 @@ struct FavouritesBreedsView: View {
                     }
                 }
             }
+            .onAppear {
+                Task {
+                    await viewModel.load()
+                }
+            }
+
             .navigationTitle("Favorites 😺")
         }
     }
