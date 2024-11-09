@@ -139,6 +139,7 @@ extension BreedDetail {
         BreedDetail(
             id: "id - \($0)",
             name: "mock name - \($0)",
+            lifeSpan: nil,
             imageUrl: nil,
             isFavourite: false
         )
@@ -150,6 +151,9 @@ final class BreedsListViewModelMock: BreedsListViewModel {
     init(state: State) {
         super.init(repository: BreedsRepositoryMock())
         self.state = state
+        if case .loaded(let result) = state {
+            super.favouritesBreeds = result.filter { $0.isFavourite }
+        }
     }
 }
 #endif

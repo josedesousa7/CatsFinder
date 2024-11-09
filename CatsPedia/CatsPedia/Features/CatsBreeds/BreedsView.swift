@@ -55,7 +55,11 @@ struct BreedsView: View {
                 LazyVGrid(columns: gridItems, spacing: 10) {
                     ForEach(breed, id: \.id) { catBreed in
                         NavigationLink(destination: destinationView(catBreed)) {
-                            BreedView(model: catBreed) {
+                            BreedView(
+                                caption: catBreed.name,
+                                isFavourite: catBreed.isFavourite,
+                                imageUrl: catBreed.imageUrl
+                            ) {
                                 Task {
                                     await viewModel.favoriteOrUnfavorite(breed: catBreed)
                                 }

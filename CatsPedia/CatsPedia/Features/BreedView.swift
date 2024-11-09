@@ -8,21 +8,26 @@
 import SwiftUI
 
 struct BreedView: View {
-    let model: BreedDetail
+    //let model: BreedDetail
+    let caption: String?
+    let isFavourite: Bool
+    let imageUrl: URL?
     let action: () -> Void
 
     var body: some View {
         VStack(spacing: 12) {
-            catPicture(for: model)
-            Text(model.name)
-                .font(.caption)
-                .foregroundStyle(.primary)
+            catPicture(for: imageUrl, markedAsFavourite: isFavourite)
+            if let caption = caption {
+                Text(caption)
+                    .font(.caption)
+                    .foregroundStyle(.primary)
+            }
         }
     }
 
-    @ViewBuilder private func catPicture(for breed: BreedDetail) -> some View {
+    @ViewBuilder private func catPicture(for url: URL?, markedAsFavourite: Bool) -> some View {
         ZStack (alignment: .topTrailing) {
-            SwiftUI.Image(systemName: model.isFavourite ? "star.fill" : "star")
+            SwiftUI.Image(systemName: markedAsFavourite ? "star.fill" : "star")
                 .foregroundColor(.yellow)
                 .zIndex(1)
                 .padding(.trailing, 4)
@@ -30,7 +35,7 @@ struct BreedView: View {
                 .onTapGesture {
                     action()
                 }
-            AsyncImage(url: breed.imageUrl) { image in
+            AsyncImage(url: url) { image in
                 formatImage(image)
             } placeholder: {
                 placeHolder
@@ -63,12 +68,9 @@ struct BreedView: View {
 
 #Preview {
     BreedView(
-        model: .init(
-            id: "mock id",
-            name: "mock name",
-            imageUrl: nil,
-            isFavourite: true
-        ),
+        caption: "fake caption",
+        isFavourite: true,
+        imageUrl: nil,
         action: { }
     )
 }

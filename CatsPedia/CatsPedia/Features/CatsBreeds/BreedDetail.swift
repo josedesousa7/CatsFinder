@@ -10,6 +10,7 @@ import Foundation
 struct BreedDetail: Identifiable, Hashable {
     let id: String
     let name: String
+    let lifeSpan: String?
     let imageUrl: URL?
     var isFavourite: Bool
     var favouriteId: Int?
