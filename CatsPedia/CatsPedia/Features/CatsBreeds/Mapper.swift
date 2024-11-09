@@ -16,8 +16,8 @@ func mapToBreedDetail(result: [Breed], favorites: [FavoriteBreed]) throws -> [Br
             id: id,
             name: name,
             imageUrl: breed.image?.url.flatMap(URL.init),
-            isFavorite: isFavorite,
-            favoriteId: favorites[safe: favoriteIdIndex]?.id
+            isFavourite: isFavorite,
+            favouriteId: favorites[safe: favoriteIdIndex]?.id
         )
     }
 }

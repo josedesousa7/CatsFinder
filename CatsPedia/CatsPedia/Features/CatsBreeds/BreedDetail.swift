@@ -11,11 +11,11 @@ struct BreedDetail: Identifiable, Hashable {
     let id: String
     let name: String
     let imageUrl: URL?
-    var isFavorite: Bool
-    var favoriteId: Int?
+    var isFavourite: Bool
+    var favouriteId: Int?
 
     mutating func update(with interaction: Bool, id: Int?) {
-        isFavorite = interaction
-        favoriteId = id
+        isFavourite = interaction
+        favouriteId = id
     }
 }
