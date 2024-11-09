@@ -15,10 +15,14 @@ func mapToBreedDetail(result: [Breed], favorites: [FavoriteBreed]) throws -> [Br
         let lifeSpan = breed.lifeSpan?.components(separatedBy: " - ").first.map {
             return  "life expectancy: \($0)"
         }
+
         return BreedDetail(
             id: id,
             name: name,
             lifeSpan: lifeSpan,
+            origin: breed.origin,
+            temperament: breed.temperament,
+            description: breed.description,
             imageUrl: breed.image?.url.flatMap(URL.init),
             isFavourite: isFavorite,
             favouriteId: favorites[safe: favoriteIdIndex]?.id

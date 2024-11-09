@@ -21,7 +21,7 @@ struct FavouritesBreedsView: View {
                 VStack {
                     LazyVGrid(columns: gridItems, spacing: 10) {
                         ForEach(viewModel.favouritesBreeds, id: \.id) { catBreed in
-                            NavigationLink(destination: Text(catBreed.name)) {
+                            NavigationLink(destination: BreedDetailView(breed: catBreed)) {
                                 BreedView(
                                     caption: catBreed.lifeSpan,
                                     isFavourite: catBreed.isFavourite,
@@ -45,6 +45,9 @@ struct FavouritesBreedsView: View {
             id: "Mock-Id-1",
             name: "Mock-name-1",
             lifeSpan: nil,
+            origin: nil,
+            temperament: nil,
+            description: nil,
             imageUrl: nil,
             isFavourite: false
         ),
@@ -52,6 +55,9 @@ struct FavouritesBreedsView: View {
             id: "Mock-Id-2",
             name: "Mock-name-2",
             lifeSpan: nil,
+            origin: nil,
+            temperament: nil,
+            description: nil,
             imageUrl: nil,
             isFavourite: true
         ),
@@ -59,6 +65,9 @@ struct FavouritesBreedsView: View {
             id: "Mock-Id-3",
             name: "Mock-name-3",
             lifeSpan: nil,
+            origin: nil,
+            temperament: nil,
+            description: nil,
             imageUrl: nil,
             isFavourite: true
         ),
@@ -66,6 +75,9 @@ struct FavouritesBreedsView: View {
             id: "Mock-Id-4",
             name: "Mock-name-4",
             lifeSpan: nil,
+            origin: nil,
+            temperament: nil,
+            description: nil,
             imageUrl: nil,
             isFavourite: false
         ),
@@ -73,6 +85,9 @@ struct FavouritesBreedsView: View {
             id: "Mock-Id-5",
             name: "Mock-name-5",
             lifeSpan: nil,
+            origin: nil,
+            temperament: nil,
+            description: nil,
             imageUrl: nil,
             isFavourite: true
         )

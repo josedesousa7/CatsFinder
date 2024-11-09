@@ -139,7 +139,9 @@ extension BreedDetail {
         BreedDetail(
             id: "id - \($0)",
             name: "mock name - \($0)",
-            lifeSpan: nil,
+            lifeSpan: nil, origin: nil,
+            temperament: nil,
+            description: nil,
             imageUrl: nil,
             isFavourite: false
         )
