@@ -105,50 +105,63 @@ class BreedsListViewModel: ObservableObject {
     }
 
 
-    func favoriteOrUnfavoriteForDetail(_ detailBreed: BreedDetail) async -> BreedDetail {
-        var breed = detailBreed
-        guard case .loaded(let result) = state,
-              let index = result.firstIndex(where: { $0.id == breed.id }) else { return breed }
+    func favoriteOrUnfavouriteForDetail(_ detailBreed: BreedDetail) async -> BreedDetail {
+        let breed = detailBreed
+        guard case .loaded(let result) = state else { return breed }
         if breed.isFavourite == false {
-            do {
-                let response = try await repository.createFavorite(for: breed)
-                guard let favoriteId = response.id else { return breed }
-                if response.message == "SUCCESS" {
-                    var updatedResult = result
-                    breed.isFavourite.toggle()
-                    updatedResult[index].update(with: breed.isFavourite, id: favoriteId)
-                    self.favouritesBreeds = updatedResult.filter { $0.isFavourite }
-                    state = .loaded(result: updatedResult)
-                    return breed
-                }
-            }
-            catch {
-                // loading more failed, keep the list with the current results
-                state = .partiallyFailed(result: result)
+            return await createFavourite(result: result, breed: breed)
+        }
+        else {
+            return await removeFavourite(result: result, breed: breed)
+        }
+    }
+
+    private func createFavourite(result: [BreedDetail], breed: BreedDetail) async -> BreedDetail {
+        var breed = breed
+        guard let index = result.firstIndex(where: { $0.id == breed.id }) else { return breed }
+        do {
+            let response = try await repository.createFavorite(for: breed)
+            guard let favoriteId = response.id else { return breed }
+            if response.message == "SUCCESS" {
+                var updatedResult = result
+                breed.isFavourite.toggle()
+                updatedResult[index].update(with: breed.isFavourite, id: favoriteId)
+                self.favouritesBreeds = updatedResult.filter { $0.isFavourite }
+                state = .loaded(result: updatedResult)
                 return breed
             }
         }
-
-        else {
-            do {
-                let response = try await repository.removeFavorite(for: breed)
-                if response {
-                    var updatedResult = result
-                    breed.isFavourite.toggle()
-                    updatedResult[index].update(with: breed.isFavourite, id: nil)
-                    self.favouritesBreeds = updatedResult.filter { $0.isFavourite }
-                    state = .loaded(result: updatedResult)
-                    return breed
-                }
-            }
-            catch {
-                // loading more failed, keep the list with the current results
-                state = .partiallyFailed(result: result)
-                return breed
-            }
+        catch {
+            // loading more failed, keep the list with the current results
+            state = .partiallyFailed(result: result)
+            return breed
         }
         return breed
     }
+
+    private func removeFavourite(result: [BreedDetail], breed: BreedDetail) async -> BreedDetail {
+        var breed = breed
+        guard let index = result.firstIndex(where: { $0.id == breed.id }) else { return breed }
+        do {
+            let response = try await repository.removeFavorite(for: breed)
+            if response {
+                var updatedResult = result
+                breed.isFavourite.toggle()
+                updatedResult[index].update(with: breed.isFavourite, id: nil)
+                self.favouritesBreeds = updatedResult.filter { $0.isFavourite }
+                state = .loaded(result: updatedResult)
+                return breed
+            }
+        }
+        catch {
+            // loading more failed, keep the list with the current results
+            state = .partiallyFailed(result: result)
+            return breed
+        }
+        return breed
+    }
+
+ //MARK: - Search results
 
     func filterResultsFor(_ keyword: String) {
         if keyword.isEmpty {

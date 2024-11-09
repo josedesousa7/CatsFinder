@@ -49,7 +49,6 @@ struct BreedDetailView: View {
                 if let description = breed.description {
                     Text(description)
                         .font(.subheadline)
-                        .lineLimit(2)
                 }
             }
         }
@@ -84,7 +83,7 @@ struct BreedDetailView: View {
 }
 
 private extension CGFloat {
-    static let imageWidth = 300.0
+    static let imageWidth = 250.0
 }
 
 
