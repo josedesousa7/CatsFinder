@@ -12,29 +12,29 @@ struct BreedView: View {
     let action: () -> Void
 
     var body: some View {
-        ZStack (alignment: .topTrailing) {
-            SwiftUI.Image(systemName: model.isFavourite ? "star.fill" : "star")
-                .foregroundColor(.yellow)
-                .zIndex(1)
-                .onTapGesture {
-                    action()
-                }
-                .padding(.trailing, 4)
-                .padding(.top, 4)
-            VStack(spacing: 12) {
-                catPicture(for: model)
-                Text(model.name)
-                    .font(.caption)
-                    .foregroundStyle(.primary)
-            }
+        VStack(spacing: 12) {
+            catPicture(for: model)
+            Text(model.name)
+                .font(.caption)
+                .foregroundStyle(.primary)
         }
     }
 
     @ViewBuilder private func catPicture(for breed: BreedDetail) -> some View {
-        AsyncImage(url: breed.imageUrl) { image in
-            formatImage(image)
-        } placeholder: {
-            placeHolder
+        ZStack (alignment: .topTrailing) {
+            SwiftUI.Image(systemName: model.isFavourite ? "star.fill" : "star")
+                .foregroundColor(.yellow)
+                .zIndex(1)
+                .padding(.trailing, 4)
+                .padding(.top, 4)
+                .onTapGesture {
+                    action()
+                }
+            AsyncImage(url: breed.imageUrl) { image in
+                formatImage(image)
+            } placeholder: {
+                placeHolder
+            }
         }
     }
 

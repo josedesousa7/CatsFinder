@@ -94,6 +94,7 @@ class BreedsListViewModel: ObservableObject {
                     var isFavorite = breed.isFavourite
                     isFavorite.toggle()
                     updatedResult[index].update(with: isFavorite, id: favoriteId)
+                    self.favouritesBreeds = updatedResult.filter { $0.isFavourite }
                     state = .loaded(result: updatedResult)
                 }
             }
