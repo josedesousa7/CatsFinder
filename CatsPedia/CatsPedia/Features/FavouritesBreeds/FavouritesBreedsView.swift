@@ -14,13 +14,14 @@ struct FavouritesBreedsView: View {
     }
 
     @EnvironmentObject var viewModel: BreedsListViewModel
+    @State var favorites: [BreedDetail]
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack {
                     LazyVGrid(columns: gridItems, spacing: 10) {
-                        ForEach(viewModel.favouritesBreeds, id: \.id) { catBreed in
+                        ForEach(favorites, id: \.id) { catBreed in
                             NavigationLink(destination: BreedDetailView(breed: catBreed)
                                 .environmentObject(viewModel)) {
                                     BreedView(
@@ -33,6 +34,12 @@ struct FavouritesBreedsView: View {
                                 .buttonStyle(.plain)
                         }
                     }
+                }
+                .onAppear {
+                    favorites = viewModel.favouritesBreeds
+                }
+                .onDisappear {
+                    favorites = []
                 }
             }
             .navigationTitle("Favorites 😺")
@@ -98,6 +105,6 @@ struct FavouritesBreedsView: View {
         state: .loaded(result: breeds)
     )
     
-    FavouritesBreedsView()
+    FavouritesBreedsView(favorites: breeds)
         .environmentObject(mockViewModel)
 }

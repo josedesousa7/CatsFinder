@@ -39,10 +39,11 @@ class BreedsRepository: BreedsRepositoryProtocol {
             if error.localizedDescription == "The Internet connection appears to be offline." {
                 let persistedResults = dataPersistance.fetch()
                 return mapToBreedDetail(breeds: persistedResults)
+            } else {
+                throw error
             }
 
         }
-        return breeds
     }
 
     private func updateDatase(with breeds: [BreedDetail]) throws {

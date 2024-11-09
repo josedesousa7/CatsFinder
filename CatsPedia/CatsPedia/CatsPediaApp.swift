@@ -21,7 +21,7 @@ struct CatsPediaApp: App {
                 .tabItem {
                     Label("Cats 😺", systemImage: "list.dash")
                 }
-                FavouritesBreedsView()
+                FavouritesBreedsView(favorites: viewModel.favouritesBreeds)
                     .environmentObject(viewModel)
                     .tabItem {
                         Label("Favorites", systemImage: "star.fill")
