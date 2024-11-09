@@ -19,11 +19,11 @@ struct ErrorView: View {
                 retryAction()
             }
             .padding(.internalButtonPadding)
-            .clipShape(Rectangle())
             .foregroundColor(.gray)
-            .overlay(Rectangle()
+            .overlay(RoundedRectangle(cornerRadius: .cornerRadius)
                 .stroke(.gray, lineWidth: 1)
             )
+
         }
         .frame(alignment: .top)
     }
@@ -32,6 +32,7 @@ struct ErrorView: View {
 private extension CGFloat {
     static let symbolSize = 70.0
     static let internalButtonPadding = 8.0
+    static let cornerRadius = 10.0
 }
 
 #Preview {

@@ -46,7 +46,7 @@ struct BreedsRepository: BreedsRepositoryProtocol {
     }
 
     func removeFavorite(for breed: BreedDetail) async throws -> Bool {
-        guard let id = breed.favoriteId else { return false }
+        guard let id = breed.favouriteId else { return false }
         let response: FavoriteCreationResponse = try await apiClient.removeFavorite(id: id)
         return response.message == "SUCCESS"
     }
@@ -64,7 +64,7 @@ struct BreedsRepositoryMock: BreedsRepositoryProtocol {
     
 
     func fetchMoreBreeds(page: Int) async throws -> [BreedDetail] {
-        return BreedDetail.mock
+        return []
     }
     
     func fetchBreedList() async throws -> [BreedDetail] {

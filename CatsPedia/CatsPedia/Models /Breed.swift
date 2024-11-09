@@ -9,6 +9,7 @@ struct Breed: Codable {
     let id: String?
     let name: String?
     let origin: String?
+    let lifeSpan: String?
     let temperament: String?
     let description: String?
     let image: Image?
@@ -17,6 +18,7 @@ struct Breed: Codable {
         case id = "id"
         case name = "name"
         case temperament = "temperament"
+        case lifeSpan = "life_span"
         case origin = "origin"
         case description = "description"
         case image = "image"

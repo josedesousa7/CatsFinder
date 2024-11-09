@@ -8,11 +8,9 @@
 import SwiftUI
 
 struct BreedsView: View {
-    var gridItems: [GridItem] = [
-        GridItem(.flexible()),
-        GridItem(.flexible()),
+    var gridItems: [GridItem] = (1...3).map { _ in
         GridItem(.flexible())
-    ]
+    }
 
     @ObservedObject private(set) var viewModel: BreedsListViewModel
     @State var text: String = ""
@@ -57,13 +55,21 @@ struct BreedsView: View {
                 LazyVGrid(columns: gridItems, spacing: 10) {
                     ForEach(breed, id: \.id) { catBreed in
                         NavigationLink(destination: destinationView(catBreed)) {
-                            catView(catBreed)
-                                .padding(.vertical)
-                                .onAppear {
-                                    Task {
-                                        await viewModel.loadMore(after: catBreed)
-                                    }
+                            BreedView(
+                                caption: catBreed.name,
+                                isFavourite: catBreed.isFavourite,
+                                imageUrl: catBreed.imageUrl
+                            ) {
+                                Task {
+                                    await viewModel.favoriteOrUnfavorite(breed: catBreed)
                                 }
+                            }
+                            .padding(.vertical)
+                            .onAppear {
+                                Task {
+                                    await viewModel.loadMore(after: catBreed)
+                                }
+                            }
                         }
                         .buttonStyle(.plain)
                     }
@@ -75,70 +81,7 @@ struct BreedsView: View {
         }
         .navigationTitle("Cats 😺")
     }
-
-    private func catView( _ breed: BreedDetail) -> some View {
-        VStack(spacing: 12) {
-            catPicture(for: breed)
-            Text(breed.name)
-                .font(.caption)
-                .foregroundStyle(.primary)
-        }
-    }
-
-    private var placeHolder: some View {
-        ZStack {
-            Rectangle()
-                .frame(width: 100, height: 100)
-                .foregroundColor(.gray.opacity(0.2))
-            SwiftUI.Image(systemName: "photo.artframe")
-        }
-    }
-
-    @ViewBuilder private func catPicture(for breed: BreedDetail) -> some View {
-        ZStack (alignment: .topTrailing) {
-            SwiftUI.Image(systemName: breed.isFavorite ? "star.fill" : "star")
-                .foregroundColor(.yellow)
-                .zIndex(1)
-                .onTapGesture {
-                    Task {
-                        await viewModel.favoriteOrUnfavorite(breed: breed)
-                    }
-                }
-            AsyncImage(url: breed.imageUrl) { phase in
-                switch phase {
-                case .success(let image):
-                    formatImage(image)
-                case .failure:
-                    //async image sometimes fails. Calling a second time seems to be working 🤷🏼‍♂️
-                    AsyncImage(url: breed.imageUrl) { phase in
-                        switch phase {
-                        case .success(let image):
-                            formatImage(image)
-                        case .failure:
-                            SwiftUI.Image(systemName: "exclamationmark.triangle")
-                        default:
-                            placeHolder
-                        }
-                    }
-                default:
-                    placeHolder
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func formatImage(_ image:  SwiftUI.Image) -> some View {
-        image
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(width: 100, height: 100)
-            .clipShape(Rectangle())
-            .overlay(Rectangle()
-                .stroke(.gray, lineWidth: 1)
-            )
-            .clipped()
-    }
+    
 }
 
 #Preview("Loaded") {

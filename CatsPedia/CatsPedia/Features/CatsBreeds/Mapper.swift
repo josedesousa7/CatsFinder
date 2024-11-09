@@ -12,12 +12,16 @@ func mapToBreedDetail(result: [Breed], favorites: [FavoriteBreed]) throws -> [Br
         let favoritesId = favorites.map { $0.imageId }
         let favoriteIdIndex = favoritesId.firstIndex(where: { id == $0 })
         let isFavorite = favoritesId.contains { $0 == id }
+        let lifeSpan = breed.lifeSpan?.components(separatedBy: " - ").first.map {
+            return  "life expectancy: \($0)"
+        }
         return BreedDetail(
             id: id,
             name: name,
+            lifeSpan: lifeSpan,
             imageUrl: breed.image?.url.flatMap(URL.init),
-            isFavorite: isFavorite,
-            favoriteId: favorites[safe: favoriteIdIndex]?.id
+            isFavourite: isFavorite,
+            favouriteId: favorites[safe: favoriteIdIndex]?.id
         )
     }
 }

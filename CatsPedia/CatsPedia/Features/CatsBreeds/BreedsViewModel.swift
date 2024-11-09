@@ -36,6 +36,7 @@ class BreedsListViewModel: ObservableObject {
 
     @Published var state: State = .loading(result: BreedDetail.mock)
     private var availableBreeds: [BreedDetail] = []
+    @Published var favouritesBreeds: [BreedDetail] = []
     @Published private var searchResults: [BreedDetail] = []
 
     private let repository: BreedsRepositoryProtocol
@@ -56,6 +57,7 @@ class BreedsListViewModel: ObservableObject {
             let result = try await repository.fetchBreedList()
             state = .loaded(result: result)
             self.availableBreeds = result
+            self.favouritesBreeds = availableBreeds.filter { $0.isFavourite }
             page = 0
         } catch {
             state = .failed
@@ -64,13 +66,14 @@ class BreedsListViewModel: ObservableObject {
 
     func loadMore(after breed: BreedDetail) async {
         guard case .loaded(let result) = state, state.hasLoaded else { return }
-        let thresholdIndex = result.index(result.endIndex, offsetBy: -1)
+        let thresholdIndex = result.index(result.endIndex, offsetBy: -3)
         if result.firstIndex(where: { $0.id == breed.id }) == thresholdIndex {
             state = .loadingMore(result: result)
                do {
                    page += 1
                    let newBreeds = try await repository.fetchMoreBreeds(page: page)
                    self.availableBreeds = result + newBreeds
+                   self.favouritesBreeds = availableBreeds.filter { $0.isFavourite }
                    state = .loaded(result: result + newBreeds)
                } catch {
                    // loading more failed, keep the list with the current results
@@ -82,15 +85,16 @@ class BreedsListViewModel: ObservableObject {
     func favoriteOrUnfavorite(breed: BreedDetail) async {
         guard case .loaded(let result) = state,
         let index = result.firstIndex(of: breed) else { return }
-        if breed.isFavorite == false {
+        if breed.isFavourite == false {
             do {
                 let response = try await repository.createFavorite(for: breed)
                 guard let favoriteId = response.id else { return }
                 if response.message == "SUCCESS" {
                     var updatedResult = result
-                    var isFavorite = breed.isFavorite
+                    var isFavorite = breed.isFavourite
                     isFavorite.toggle()
                     updatedResult[index].update(with: isFavorite, id: favoriteId)
+                    self.favouritesBreeds = updatedResult.filter { $0.isFavourite }
                     state = .loaded(result: updatedResult)
                 }
             }
@@ -105,7 +109,7 @@ class BreedsListViewModel: ObservableObject {
                 let response = try await repository.removeFavorite(for: breed)
                 if response {
                     var updatedResult = result
-                    var isFavorite = breed.isFavorite
+                    var isFavorite = breed.isFavourite
                     isFavorite.toggle()
                     updatedResult[index].update(with: isFavorite, id: nil)
                     state = .loaded(result: updatedResult)
@@ -135,8 +139,9 @@ extension BreedDetail {
         BreedDetail(
             id: "id - \($0)",
             name: "mock name - \($0)",
+            lifeSpan: nil,
             imageUrl: nil,
-            isFavorite: false
+            isFavourite: false
         )
     }
 }
@@ -146,6 +151,9 @@ final class BreedsListViewModelMock: BreedsListViewModel {
     init(state: State) {
         super.init(repository: BreedsRepositoryMock())
         self.state = state
+        if case .loaded(let result) = state {
+            super.favouritesBreeds = result.filter { $0.isFavourite }
+        }
     }
 }
 #endif
