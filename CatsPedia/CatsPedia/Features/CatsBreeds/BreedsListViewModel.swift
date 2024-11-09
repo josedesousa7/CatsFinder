@@ -104,8 +104,7 @@ class BreedsListViewModel: ObservableObject {
         }
     }
 
-
-    func favoriteOrUnfavouriteForDetail(_ detailBreed: BreedDetail) async -> BreedDetail {
+    func favouriteOrUnfavouriteForDetail(_ detailBreed: BreedDetail) async -> BreedDetail {
         let breed = detailBreed
         guard case .loaded(let result) = state else { return breed }
         if breed.isFavourite == false {
