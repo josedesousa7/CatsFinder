@@ -13,9 +13,22 @@ struct CatsPediaApp: App {
     let viewModel = BreedsListViewModel(
         repository: BreedsRepository()
     )
+//    var sharedModelContainer: ModelContainer = {
+//        let schema = Schema([
+//            Item.self,
+//        ])
+//        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+//
+//        do {
+//            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+//        } catch {
+//            fatalError("Could not create ModelContainer: \(error)")
+//        }
+//    }()
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            BreedDetailPersistance.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +38,7 @@ struct CatsPediaApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-    
+
     var body: some Scene {
         WindowGroup {
             TabView {

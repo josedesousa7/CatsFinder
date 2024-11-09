@@ -6,7 +6,7 @@
 //
 import Foundation
 
-func mapToBreedDetail(result: [Breed], favorites: [FavoriteBreed]) throws -> [BreedDetail] {
+func mapToBreedDetail(result: [Breed], favorites: [FavoriteBreed]) -> [BreedDetail] {
     return result.compactMap { breed -> BreedDetail? in
         guard let name = breed.name, let id = breed.id else { return nil }
         let favoritesId = favorites.map { $0.imageId }
@@ -26,6 +26,38 @@ func mapToBreedDetail(result: [Breed], favorites: [FavoriteBreed]) throws -> [Br
             imageUrl: breed.image?.url.flatMap(URL.init),
             isFavourite: isFavorite,
             favouriteId: favorites[safe: favoriteIdIndex]?.id
+        )
+    }
+}
+
+func mapToBreedDetailPersistance(breeds: [BreedDetail]) -> [BreedDetailPersistance] {
+    return breeds.map { breed -> BreedDetailPersistance in
+        return BreedDetailPersistance(
+            id: breed.id,
+            name: breed.name,
+            lifeSpan: breed.lifeSpan,
+            origin: breed.origin,
+            temperament: breed.temperament,
+            breedDescription: breed.description,
+            imageUrl: breed.imageUrl,
+            isFavourite: breed.isFavourite,
+            favouriteId: breed.favouriteId
+        )
+    }
+}
+
+func mapToBreedDetail(breeds: [BreedDetailPersistance]) -> [BreedDetail] {
+    return breeds.map { breed -> BreedDetail in
+        return BreedDetail(
+            id: breed.id,
+            name: breed.name,
+            lifeSpan: breed.lifeSpan,
+            origin: breed.origin,
+            temperament: breed.temperament,
+            description: breed.breedDescription,
+            imageUrl: breed.imageUrl,
+            isFavourite: breed.isFavourite,
+            favouriteId: breed.favouriteId
         )
     }
 }
