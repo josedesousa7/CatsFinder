@@ -27,15 +27,26 @@ class BreedsRepository: BreedsRepositoryProtocol {
     }
 
     func fetchBreedList() async throws -> [BreedDetail] {
-        let breedList: [Breed] = try await apiClient.fetchBreeds()
-        let favorites = try await fecthFavorites()
-        let breedDetail = try mapToBreedDetail(result: breedList, favorites: favorites)
-        try updateDatase(with: breedDetail)
-        return try mapToBreedDetail(result: breedList, favorites: favorites)
+        var breeds: [BreedDetail] = []
+        do {
+            let breedList: [Breed] = try await apiClient.fetchBreeds()
+            let favorites = try await fecthFavorites()
+            let breedDetail = mapToBreedDetail(result: breedList, favorites: favorites)
+            try updateDatase(with: breedDetail)
+            breeds = mapToBreedDetail(result: breedList, favorites: favorites)
+            return breeds
+        } catch (let error) {
+            if error.localizedDescription == "The Internet connection appears to be offline." {
+                let persistedResults = dataPersistance.fetch()
+                return mapToBreedDetail(breeds: persistedResults)
+            }
+
+        }
+        return breeds
     }
 
     private func updateDatase(with breeds: [BreedDetail]) throws {
-        let dataPersistanceObjects = try mapToBreedDetailPersistance(breeds: breeds)
+        let dataPersistanceObjects = mapToBreedDetailPersistance(breeds: breeds)
         dataPersistanceObjects.forEach { item in
             dataPersistance.addBreed(item)
         }
@@ -44,9 +55,9 @@ class BreedsRepository: BreedsRepositoryProtocol {
     func fetchMoreBreeds(page: Int) async throws -> [BreedDetail] {
         let favorites = try await fecthFavorites()
         let breedList: [Breed] = try await apiClient.fetchMoreBreeds(page: page)
-        let breedDetail = try mapToBreedDetail(result: breedList, favorites: favorites)
+        let breedDetail = mapToBreedDetail(result: breedList, favorites: favorites)
         try updateDatase(with: breedDetail)
-        return try mapToBreedDetail(result: breedList, favorites: favorites)
+        return mapToBreedDetail(result: breedList, favorites: favorites)
     }
 
     func fecthFavorites() async throws -> [FavoriteBreed] {
