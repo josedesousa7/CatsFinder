@@ -82,25 +82,50 @@ class BreedsListViewModel: ObservableObject {
            }
     }
 
-    func favoriteOrUnfavorite(breed: BreedDetail) async {
+    func createFavorite(breed: BreedDetail) async {
         guard case .loaded(let result) = state,
-        let index = result.firstIndex(of: breed) else { return }
+              let index = result.firstIndex(where: { $0.id == breed.id }),
+              breed.isFavourite == false else { return }
+        do {
+            let response = try await repository.createFavorite(for: breed)
+            guard let favoriteId = response.id else { return }
+            if response.message == "SUCCESS" {
+                var updatedResult = result
+                var isFavorite = breed.isFavourite
+                isFavorite.toggle()
+                updatedResult[index].update(with: isFavorite, id: favoriteId)
+                self.favouritesBreeds = updatedResult.filter { $0.isFavourite }
+                state = .loaded(result: updatedResult)
+            }
+        }
+        catch {
+            // loading more failed, keep the list with the current results
+            state = .partiallyFailed(result: result)
+        }
+    }
+
+
+    func favoriteOrUnfavoriteForDetail(_ detailBreed: BreedDetail) async -> BreedDetail {
+        var breed = detailBreed
+        guard case .loaded(let result) = state,
+              let index = result.firstIndex(where: { $0.id == breed.id }) else { return breed }
         if breed.isFavourite == false {
             do {
                 let response = try await repository.createFavorite(for: breed)
-                guard let favoriteId = response.id else { return }
+                guard let favoriteId = response.id else { return breed }
                 if response.message == "SUCCESS" {
                     var updatedResult = result
-                    var isFavorite = breed.isFavourite
-                    isFavorite.toggle()
-                    updatedResult[index].update(with: isFavorite, id: favoriteId)
+                    breed.isFavourite.toggle()
+                    updatedResult[index].update(with: breed.isFavourite, id: favoriteId)
                     self.favouritesBreeds = updatedResult.filter { $0.isFavourite }
                     state = .loaded(result: updatedResult)
+                    return breed
                 }
             }
             catch {
                 // loading more failed, keep the list with the current results
                 state = .partiallyFailed(result: result)
+                return breed
             }
         }
 
@@ -109,17 +134,20 @@ class BreedsListViewModel: ObservableObject {
                 let response = try await repository.removeFavorite(for: breed)
                 if response {
                     var updatedResult = result
-                    var isFavorite = breed.isFavourite
-                    isFavorite.toggle()
-                    updatedResult[index].update(with: isFavorite, id: nil)
+                    breed.isFavourite.toggle()
+                    updatedResult[index].update(with: breed.isFavourite, id: nil)
+                    self.favouritesBreeds = updatedResult.filter { $0.isFavourite }
                     state = .loaded(result: updatedResult)
+                    return breed
                 }
             }
             catch {
                 // loading more failed, keep the list with the current results
                 state = .partiallyFailed(result: result)
+                return breed
             }
         }
+        return breed
     }
 
     func filterResultsFor(_ keyword: String) {

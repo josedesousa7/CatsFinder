@@ -21,25 +21,20 @@ struct FavouritesBreedsView: View {
                 VStack {
                     LazyVGrid(columns: gridItems, spacing: 10) {
                         ForEach(viewModel.favouritesBreeds, id: \.id) { catBreed in
-                            NavigationLink(destination: BreedDetailView(viewModel: BreedDetailViewModel(breed: catBreed))) {
-                                BreedView(
-                                    caption: catBreed.lifeSpan,
-                                    isFavourite: catBreed.isFavourite,
-                                    imageUrl: catBreed.imageUrl
-                                ) { }
-                                    .padding(.vertical)
-                            }
-                            .buttonStyle(.plain)
+                            NavigationLink(destination: BreedDetailView(breed: catBreed)
+                                .environmentObject(viewModel)) {
+                                    BreedView(
+                                        caption: catBreed.lifeSpan,
+                                        isFavourite: catBreed.isFavourite,
+                                        imageUrl: catBreed.imageUrl
+                                    ) { }
+                                        .padding(.vertical)
+                                }
+                                .buttonStyle(.plain)
                         }
                     }
                 }
             }
-            .onAppear {
-                Task {
-                    await viewModel.load()
-                }
-            }
-
             .navigationTitle("Favorites 😺")
         }
     }
