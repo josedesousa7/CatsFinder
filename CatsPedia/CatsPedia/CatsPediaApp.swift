@@ -10,6 +10,9 @@ import SwiftData
 
 @main
 struct CatsPediaApp: App {
+    let viewModel = BreedsListViewModel(
+        repository: BreedsRepository()
+    )
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -22,10 +25,20 @@ struct CatsPediaApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TabView {
+                BreedsView(viewModel: viewModel)
+                .tabItem {
+                    Label("Cats 😺", systemImage: "list.dash")
+                }
+                FavouritesBreedsView()
+                    .environmentObject(viewModel)
+                    .tabItem {
+                        Label("Favorites", systemImage: "star.fill")
+                    }
+            }
         }
         .modelContainer(sharedModelContainer)
     }
