@@ -11,6 +11,9 @@ struct BreedDetail: Identifiable, Hashable {
     let id: String
     let name: String
     let lifeSpan: String?
+    let origin: String?
+    let temperament: String?
+    let description: String?
     let imageUrl: URL?
     var isFavourite: Bool
     var favouriteId: Int?
