@@ -27,7 +27,7 @@ struct BreedDetailView: View {
                     .padding(.top, 4)
                     .onTapGesture {
                         Task {
-                          let result =  await viewModel.favouriteOrUnfavouriteForDetail(breed)
+                            let result = await viewModel.favouriteOrUnfavouriteForDetail(breed)
                             self.breed = result
 
                         }

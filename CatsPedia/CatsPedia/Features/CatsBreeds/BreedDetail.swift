@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 
 struct BreedDetail: Identifiable, Hashable {
     let id: String

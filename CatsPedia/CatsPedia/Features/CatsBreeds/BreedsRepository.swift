@@ -15,23 +15,37 @@ protocol BreedsRepositoryProtocol {
     func removeFavorite(for breed: BreedDetail) async throws -> Bool
 }
 
-struct BreedsRepository: BreedsRepositoryProtocol {
+@MainActor
+class BreedsRepository: BreedsRepositoryProtocol {
 
     private let apiClient: CatPediaRequestsProtocol
+    private let dataPersistance: SwiftDataService
 
     init(apiClient: CatPediaRequestsProtocol = CatPediaApiClient()) {
         self.apiClient = apiClient
+        self.dataPersistance = SwiftDataService()
     }
 
     func fetchBreedList() async throws -> [BreedDetail] {
         let breedList: [Breed] = try await apiClient.fetchBreeds()
         let favorites = try await fecthFavorites()
+        let breedDetail = try mapToBreedDetail(result: breedList, favorites: favorites)
+        try updateDatase(with: breedDetail)
         return try mapToBreedDetail(result: breedList, favorites: favorites)
+    }
+
+    private func updateDatase(with breeds: [BreedDetail]) throws {
+        let dataPersistanceObjects = try mapToBreedDetailPersistance(breeds: breeds)
+        dataPersistanceObjects.forEach { item in
+            dataPersistance.addBreed(item)
+        }
     }
 
     func fetchMoreBreeds(page: Int) async throws -> [BreedDetail] {
         let favorites = try await fecthFavorites()
         let breedList: [Breed] = try await apiClient.fetchMoreBreeds(page: page)
+        let breedDetail = try mapToBreedDetail(result: breedList, favorites: favorites)
+        try updateDatase(with: breedDetail)
         return try mapToBreedDetail(result: breedList, favorites: favorites)
     }
 

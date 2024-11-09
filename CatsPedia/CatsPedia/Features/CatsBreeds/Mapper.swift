@@ -29,3 +29,19 @@ func mapToBreedDetail(result: [Breed], favorites: [FavoriteBreed]) throws -> [Br
         )
     }
 }
+
+func mapToBreedDetailPersistance(breeds: [BreedDetail]) throws -> [BreedDetailPersistance] {
+    return breeds.map { breed -> BreedDetailPersistance in
+        return BreedDetailPersistance(
+            id: breed.id,
+            name: breed.name,
+            lifeSpan: breed.lifeSpan,
+            origin: breed.origin,
+            temperament: breed.temperament,
+            breedDescription: breed.description,
+            imageUrl: breed.imageUrl,
+            isFavourite: breed.isFavourite,
+            favouriteId: breed.favouriteId
+        )
+    }
+}
