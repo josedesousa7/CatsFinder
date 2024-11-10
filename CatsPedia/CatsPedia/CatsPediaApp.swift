@@ -14,19 +14,20 @@ struct CatsPediaApp: App {
     let viewModel = BreedsListViewModel(
         repository: BreedsRepository()
     )
-
+    
     static let store = Store(initialState: FavouritesFeature.State(), reducer: {
         FavouritesFeature()
     })
-
+    
     var body: some Scene {
         WindowGroup {
             TabView {
                 BreedsView(viewModel: viewModel)
-                .tabItem {
-                    Label("Cats 😺", systemImage: "list.dash")
-                }
+                    .tabItem {
+                        Label("Cats 😺", systemImage: "list.dash")
+                    }
                 FavouritesViewTca(store: CatsPediaApp.store)
+                    .environmentObject(viewModel)
                     .tabItem {
                         Label("Favorites", systemImage: "star.fill")
                     }

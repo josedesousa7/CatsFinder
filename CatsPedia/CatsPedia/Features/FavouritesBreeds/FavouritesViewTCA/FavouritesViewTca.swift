@@ -15,14 +15,16 @@ struct FavouritesViewTca: View {
     }
     
     var store: StoreOf<FavouritesFeature>
-    
+    @EnvironmentObject var viewModel: BreedsListViewModel
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack {
                     LazyVGrid(columns: gridItems, spacing: 10) {
                         ForEach(store.favourites, id: \.id) { catBreed in
-                            NavigationLink(destination: Text(catBreed.name)) {
+                            NavigationLink(destination: BreedDetailView(breed: catBreed)
+                                .environmentObject(viewModel)) {
                                 BreedView(
                                     name: catBreed.name,
                                     caption: catBreed.lifeSpan,
@@ -46,8 +48,12 @@ struct FavouritesViewTca: View {
 }
 
 #Preview {
+    let mockViewModel: BreedsListViewModel = BreedsListViewModelMock(
+        state: .loaded(result: BreedDetail.mock)
+    )
     FavouritesViewTca(store: Store(initialState: FavouritesFeature.State(), reducer: {
         FavouritesFeature()
     }))
+    .environmentObject(mockViewModel)
 }
 
