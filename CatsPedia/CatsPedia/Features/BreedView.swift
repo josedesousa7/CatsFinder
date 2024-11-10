@@ -9,14 +9,17 @@ import SwiftUI
 
 struct BreedView: View {
     //let model: BreedDetail
+    let name: String
     let caption: String?
     let isFavourite: Bool
     let imageUrl: URL?
     let action: () -> Void
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             catPicture(for: imageUrl, markedAsFavourite: isFavourite)
+            Text(name)
+                .font(.caption)
             if let caption = caption {
                 Text(caption)
                     .font(.caption)
@@ -48,7 +51,7 @@ struct BreedView: View {
         image
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(width: 100, height: 100)
+            .frame(width: .width, height: .width)
             .clipShape(Rectangle())
             .overlay(Rectangle()
                 .stroke(.gray, lineWidth: 1)
@@ -59,15 +62,20 @@ struct BreedView: View {
     private var placeHolder: some View {
         ZStack {
             Rectangle()
-                .frame(width: 100, height: 100)
+                .frame(width: .width, height: .width)
                 .foregroundColor(.gray.opacity(0.2))
             SwiftUI.Image(systemName: "photo.artframe")
         }
     }
 }
 
+private extension CGFloat {
+    static let width = 100.0
+}
+
 #Preview {
     BreedView(
+        name: "mock name",
         caption: "fake caption",
         isFavourite: true,
         imageUrl: nil,

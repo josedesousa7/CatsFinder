@@ -57,7 +57,8 @@ struct BreedsView: View {
                         NavigationLink(destination: BreedDetailView(breed: catBreed)
                             .environmentObject(viewModel)) {
                             BreedView(
-                                caption: catBreed.name,
+                                name: catBreed.name,
+                                caption: nil,
                                 isFavourite: catBreed.isFavourite,
                                 imageUrl: catBreed.imageUrl
                             ) {

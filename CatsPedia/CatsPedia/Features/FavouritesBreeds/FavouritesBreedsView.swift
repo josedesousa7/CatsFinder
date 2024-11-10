@@ -25,6 +25,7 @@ struct FavouritesBreedsView: View {
                             NavigationLink(destination: BreedDetailView(breed: catBreed)
                                 .environmentObject(viewModel)) {
                                     BreedView(
+                                        name: catBreed.name,
                                         caption: catBreed.lifeSpan,
                                         isFavourite: catBreed.isFavourite,
                                         imageUrl: catBreed.imageUrl
