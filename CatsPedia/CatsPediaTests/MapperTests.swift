@@ -40,10 +40,15 @@ struct MapperTests {
             )
         }
 
-        let favourite = FavoriteBreed(id: nil, userId: nil, imageId: "id - 1")
-        let breedDetail = mapToBreedDetail(result: breeds, favorites: [favourite])
-        let expectedResult = try #require(breedDetail.first)
-        #expect(expectedResult.isFavourite == true)
+        let favourite1 = FavoriteBreed(id: nil, userId: nil, imageId: "id - 1")
+        let favourite2 = FavoriteBreed(id: nil, userId: nil, imageId: "id - 2")
+        let breedDetail = mapToBreedDetail(result: breeds, favorites: [favourite1, favourite2])
+        let expectedResult1 = try #require(breedDetail.first)
+        let expectedResult2 = breedDetail[1]
+        let expectedResult3 = breedDetail[3]
+        #expect(expectedResult1.isFavourite == true)
+        #expect(expectedResult2.isFavourite == true)
+        #expect(expectedResult3.isFavourite == false)
     }
 
     @Test func mapBreedToBreedDetailNotIncludeNilNamesOrId() {

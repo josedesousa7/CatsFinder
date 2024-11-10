@@ -32,6 +32,15 @@ class BreedsListViewModel: ObservableObject {
             guard case .loaded = self else { return false }
             return true
         }
+
+        var results: [BreedDetail] {
+            switch self {
+            case .loaded(let result), .searchResult(let result), .partiallyFailed(let result):
+                return result
+            default:
+                return []
+            }
+        }
     }
 
     @Published var state: State = .loading(result: BreedDetail.mock)
@@ -170,7 +179,6 @@ class BreedsListViewModel: ObservableObject {
         searchResults = availableBreeds
         let searchResult = searchResults.filter{ $0.name.contains(keyword) }
         state = .searchResult(result: searchResult)
-
     }
 }
 
