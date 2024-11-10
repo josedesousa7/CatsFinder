@@ -127,7 +127,7 @@ class BreedsListViewModel: ObservableObject {
                 updatedResult[index].update(with: breed.isFavourite, id: favoriteId)
                 self.favouritesBreeds = updatedResult.filter { $0.isFavourite }
                 state = .loaded(result: updatedResult)
-                return breed
+                return updatedResult[index]
             }
         }
         catch {
@@ -149,7 +149,7 @@ class BreedsListViewModel: ObservableObject {
                 updatedResult[index].update(with: breed.isFavourite, id: nil)
                 self.favouritesBreeds = updatedResult.filter { $0.isFavourite }
                 state = .loaded(result: updatedResult)
-                return breed
+                return updatedResult[index]
             }
         }
         catch {
