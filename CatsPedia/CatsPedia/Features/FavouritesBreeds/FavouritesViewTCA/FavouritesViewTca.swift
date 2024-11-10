@@ -36,11 +36,9 @@ struct FavouritesViewTca: View {
                     }
                 }
             }
+            .redacted(reason: store.isLoading ? .placeholder: [])
             .onAppear {
                 store.send(.fetchFavorites)
-            }
-            .onDisappear {
-                store.favourites = []
             }
             .navigationTitle("Favorites 😺")
         }

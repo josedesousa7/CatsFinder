@@ -10,38 +10,33 @@ import ComposableArchitecture
 
 @Reducer
 struct FavouritesFeature {
+    private let apiClient: CatPediaRequestsProtocol = CatPediaApiClient()
     @ObservableState
     struct State: Equatable {
-        var favourites: [BreedDetail] = []
-        var isLoading: Bool = true
+        var favourites: [BreedDetail] = BreedDetail.mock
+        var isLoading: Bool = false
     }
 
     enum Action {
         case fetchFavorites
-        //case favoritesFetched([BreedDetail])
+        case favoritesFetched([BreedDetail])
     }
 
     var body: some ReducerOf<Self> {
       Reduce { state, action in
         switch action {
         case .fetchFavorites:
-            let favourites = (1...5).map {
-                BreedDetail(
-                    id: "mock - id\($0)",
-                    name: "mock - id\($0)",
-                    lifeSpan: "mock - id\($0)",
-                    origin: "mock - id\($0)",
-                    temperament: "mock - id\($0)",
-                    description: "mock - id\($0)",
-                    imageUrl: nil,
-                    isFavourite: true
-                )
+            state.isLoading = true
+            return .run { send in
+                let breeds: [Breed] = try await apiClient.fetchBreeds()
+                let favorites: [FavoriteBreed] = try await apiClient.fetchFavorites()
+                let results = mapToBreedDetail(result: breeds, favorites: favorites)
+                await send(.favoritesFetched(results.filter{ $0.isFavourite }))
             }
+        case .favoritesFetched(let favourites):
+            state.isLoading = false
             state.favourites = favourites
             return .none
-//        case .favoritesFetched:
-//            state.favourites = favourites
-
         }
       }
     }
