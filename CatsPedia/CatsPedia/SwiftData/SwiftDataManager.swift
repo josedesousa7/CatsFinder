@@ -26,7 +26,6 @@ class SwiftDataService {
 
     @MainActor
     init() {
-        self.modelContainer = try! ModelContainer(for: BreedDetailPersistance.self, configurations: ModelConfiguration(isStoredInMemoryOnly: false))
         self.modelContext = modelContainer.mainContext
     }
 
