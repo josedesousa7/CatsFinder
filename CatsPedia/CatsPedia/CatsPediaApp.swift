@@ -7,12 +7,17 @@
 
 import SwiftUI
 import SwiftData
+import ComposableArchitecture
 
 @main
 struct CatsPediaApp: App {
     let viewModel = BreedsListViewModel(
         repository: BreedsRepository()
     )
+
+    static let store = Store(initialState: FavouritesFeature.State(), reducer: {
+        FavouritesFeature()
+    })
 
     var body: some Scene {
         WindowGroup {
@@ -21,8 +26,7 @@ struct CatsPediaApp: App {
                 .tabItem {
                     Label("Cats 😺", systemImage: "list.dash")
                 }
-                FavouritesBreedsView(favorites: viewModel.favouritesBreeds)
-                    .environmentObject(viewModel)
+                FavouritesViewTca(store: CatsPediaApp.store)
                     .tabItem {
                         Label("Favorites", systemImage: "star.fill")
                     }
