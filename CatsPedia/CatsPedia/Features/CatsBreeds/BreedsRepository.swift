@@ -79,18 +79,22 @@ class BreedsRepository: BreedsRepositoryProtocol {
 }
 
 #if targetEnvironment(simulator)
-struct BreedsRepositoryMock: BreedsRepositoryProtocol {
+class BreedsRepositoryMock: BreedsRepositoryProtocol {
+
+    var fetchedResults: [BreedDetail] = []
+    var successMessageFavorite = ""
+    var successResponseRemoveFavorite = false
+
     func createFavorite(for breed: BreedDetail) async throws -> FavoriteCreationResponse {
-        return FavoriteCreationResponse(message: "", id: 3)
+        return FavoriteCreationResponse(message: successMessageFavorite, id: 3)
     }
     
     func removeFavorite(for breed: BreedDetail) async throws -> Bool {
-        false
+        successResponseRemoveFavorite
     }
-    
 
     func fetchMoreBreeds(page: Int) async throws -> [BreedDetail] {
-        return []
+        return fetchedResults
     }
     
     func fetchBreedList() async throws -> [BreedDetail] {
