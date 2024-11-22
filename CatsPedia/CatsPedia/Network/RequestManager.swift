@@ -15,42 +15,31 @@ protocol HttpProtocol {
 }
 
 struct RequestManager: HttpProtocol {
-    
-   private let session = URLSession.shared
+
+    private let session = URLSession.shared
 
     func fetch<T: Codable>(_ request: URLRequest) async throws -> T {
 
-        let (data, response) = try await session.data(for: request)
-
-            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-                throw URLError(.badServerResponse)
-            }
-
-            let result = try JSONDecoder().decode(T.self, from: data)
-            return result
-        }
+        return try await performRequest(request)
+    }
 
     func post<T: Codable>(_ request: URLRequest) async throws -> T {
         guard request.httpMethod == "POST" else {
             throw URLError(.badURL)
         }
 
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-            throw URLError(.badServerResponse)
-        }
-
-        let result = try JSONDecoder().decode(T.self, from: data)
-        return result
+        return try await performRequest(request)
     }
 
-    func delete<T>(_ request: URLRequest) async throws -> T where T : Decodable, T : Encodable {
+    func delete<T: Codable>(_ request: URLRequest) async throws -> T {
         guard request.httpMethod == "DELETE" else {
             throw URLError(.badURL)
         }
+        return try await performRequest(request)
+    }
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+    private func performRequest<T>(_ request: URLRequest) async throws -> T where T : Codable {
+        let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
             throw URLError(.badServerResponse)
